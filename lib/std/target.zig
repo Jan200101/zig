@@ -420,6 +420,7 @@ pub const Target = struct {
     };
 
     pub const aarch64 = @import("target/aarch64.zig");
+    pub const arc = @import("target/arc.zig");
     pub const amdgpu = @import("target/amdgpu.zig");
     pub const arm = @import("target/arm.zig");
     pub const avr = @import("target/avr.zig");
@@ -453,6 +454,7 @@ pub const Target = struct {
         musl,
         musleabi,
         musleabihf,
+        muslx32,
         msvc,
         itanium,
         cygnus,
@@ -718,6 +720,7 @@ pub const Target = struct {
             bpfeb,
             csky,
             hexagon,
+            m68k,
             mips,
             mipsel,
             mips64,
@@ -853,6 +856,7 @@ pub const Target = struct {
                     .arm => ._ARM,
                     .armeb => ._ARM,
                     .hexagon => ._HEXAGON,
+                    .m68k => ._68K,
                     .le32 => ._NONE,
                     .mips => ._MIPS,
                     .mipsel => ._MIPS_RS3_LE,
@@ -913,6 +917,7 @@ pub const Target = struct {
                     .arm => .ARM,
                     .armeb => .Unknown,
                     .hexagon => .Unknown,
+                    .m68k => .Unknown,
                     .le32 => .Unknown,
                     .mips => .Unknown,
                     .mipsel => .Unknown,
@@ -1016,6 +1021,7 @@ pub const Target = struct {
                     .armeb,
                     .aarch64_be,
                     .bpfeb,
+                    .m68k,
                     .mips,
                     .mips64,
                     .powerpc,
@@ -1042,6 +1048,7 @@ pub const Target = struct {
                     .armeb,
                     .csky,
                     .hexagon,
+                    .m68k,
                     .le32,
                     .mips,
                     .mipsel,
@@ -1554,6 +1561,7 @@ pub const Target = struct {
                 .arc,
                 .csky,
                 .hexagon,
+                .m68k,
                 .msp430,
                 .r600,
                 .amdgcn,

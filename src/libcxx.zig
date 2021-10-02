@@ -45,6 +45,7 @@ const libcxx_files = [_][]const u8{
     "src/filesystem/directory_iterator.cpp",
     "src/filesystem/int128_builtins.cpp",
     "src/filesystem/operations.cpp",
+    "src/format.cpp",
     "src/functional.cpp",
     "src/future.cpp",
     "src/hash.cpp",
@@ -64,6 +65,7 @@ const libcxx_files = [_][]const u8{
     "src/stdexcept.cpp",
     "src/string.cpp",
     "src/strstream.cpp",
+    "src/support/ibm/xlocale_zos.cpp",
     "src/support/solaris/xlocale.cpp",
     "src/support/win32/locale_win32.cpp",
     "src/support/win32/support.cpp",
@@ -117,10 +119,14 @@ pub fn buildLibCXX(comp: *Compilation) !void {
             // Filesystem stuff isn't supported on Windows.
             if (std.mem.startsWith(u8, cxx_src, "src/filesystem/"))
                 continue;
-        } else {
-            if (std.mem.startsWith(u8, cxx_src, "src/support/win32/"))
-                continue;
         }
+
+        if (std.mem.startsWith(u8, cxx_src, "src/support/win32/") and target.os.tag != .windows)
+            continue;
+        if (std.mem.startsWith(u8, cxx_src, "src/support/solaris/") and target.os.tag != .solaris)
+            continue;
+        if (std.mem.startsWith(u8, cxx_src, "src/support/ibm/") and target.os.tag != .zos)
+            continue;
 
         try cflags.append("-DNDEBUG");
         try cflags.append("-D_LIBCPP_BUILDING_LIBRARY");
@@ -137,6 +143,18 @@ pub fn buildLibCXX(comp: *Compilation) !void {
             try cflags.append("-D_LIBCPP_HAS_MUSL_LIBC");
         }
 
+        if (target.os.tag == .wasi) {
+            // WASI doesn't support thread and exception yet.
+            try cflags.append("-D_LIBCPP_HAS_NO_THREADS");
+            try cflags.append("-fno-exceptions");
+        }
+
+        if (target.os.tag == .zos) {
+            try cflags.append("-fno-aligned-allocation");
+        } else {
+            try cflags.append("-faligned-allocation");
+        }
+
         try cflags.append("-I");
         try cflags.append(cxx_include_path);
 
@@ -147,7 +165,7 @@ pub fn buildLibCXX(comp: *Compilation) !void {
             try cflags.append("-fPIC");
         }
         try cflags.append("-nostdinc++");
-        try cflags.append("-std=c++14");
+        try cflags.append("-std=c++20");
         try cflags.append("-Wno-user-defined-literals");
 
         c_source_files.appendAssumeCapacity(.{

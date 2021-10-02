@@ -37,6 +37,7 @@ pub const Feature = enum {
     htm,
     icbt,
     invariant_function_descriptors,
+    isa_v207_instructions,
     isa_v30_instructions,
     isa_v31_instructions,
     isel,
@@ -62,7 +63,10 @@ pub const Feature = enum {
     ppc_prera_sched,
     predictable_select_expensive,
     prefix_instrs,
+    privileged,
+    quadword_atomics,
     recipprec,
+    rop_protect,
     secure_plt,
     slow_popcntd,
     spe,
@@ -274,10 +278,17 @@ pub const all_features = blk: {
         .description = "Assume function descriptors are invariant",
         .dependencies = featureSet(&[_]Feature{}),
     };
+    result[@enumToInt(Feature.isa_v207_instructions)] = .{
+        .llvm_name = "isa-v207-instructions",
+        .description = "Enable instructions in ISA 2.07.",
+        .dependencies = featureSet(&[_]Feature{}),
+    };
     result[@enumToInt(Feature.isa_v30_instructions)] = .{
         .llvm_name = "isa-v30-instructions",
         .description = "Enable instructions in ISA 3.0.",
-        .dependencies = featureSet(&[_]Feature{}),
+        .dependencies = featureSet(&[_]Feature{
+            .isa_v207_instructions,
+        }),
     };
     result[@enumToInt(Feature.isa_v31_instructions)] = .{
         .llvm_name = "isa-v31-instructions",
@@ -430,9 +441,24 @@ pub const all_features = blk: {
             .power9_altivec,
         }),
     };
+    result[@enumToInt(Feature.privileged)] = .{
+        .llvm_name = "privileged",
+        .description = "Add privileged instructions",
+        .dependencies = featureSet(&[_]Feature{}),
+    };
+    result[@enumToInt(Feature.quadword_atomics)] = .{
+        .llvm_name = "quadword-atomics",
+        .description = "Enable lqarx and stqcx.",
+        .dependencies = featureSet(&[_]Feature{}),
+    };
     result[@enumToInt(Feature.recipprec)] = .{
         .llvm_name = "recipprec",
         .description = "Assume higher precision reciprocal estimates",
+        .dependencies = featureSet(&[_]Feature{}),
+    };
+    result[@enumToInt(Feature.rop_protect)] = .{
+        .llvm_name = "rop-protect",
+        .description = "Add ROP protect",
         .dependencies = featureSet(&[_]Feature{}),
     };
     result[@enumToInt(Feature.secure_plt)] = .{
@@ -693,6 +719,7 @@ pub const cpu = struct {
             .ppc_postra_sched,
             .ppc_prera_sched,
             .predictable_select_expensive,
+            .quadword_atomics,
             .recipprec,
             .stfiwx,
             .two_const_nr,
@@ -787,6 +814,7 @@ pub const cpu = struct {
             .fuse_addis_load,
             .htm,
             .icbt,
+            .isa_v207_instructions,
             .isel,
             .ldbrx,
             .lfiwax,
@@ -795,6 +823,7 @@ pub const cpu = struct {
             .popcntd,
             .power8_vector,
             .predictable_select_expensive,
+            .quadword_atomics,
             .recipprec,
             .stfiwx,
             .two_const_nr,
@@ -834,6 +863,7 @@ pub const cpu = struct {
             .ppc_postra_sched,
             .ppc_prera_sched,
             .predictable_select_expensive,
+            .quadword_atomics,
             .recipprec,
             .stfiwx,
             .two_const_nr,
@@ -986,6 +1016,7 @@ pub const cpu = struct {
             .fuse_addis_load,
             .htm,
             .icbt,
+            .isa_v207_instructions,
             .isel,
             .ldbrx,
             .lfiwax,
@@ -994,6 +1025,7 @@ pub const cpu = struct {
             .popcntd,
             .power8_vector,
             .predictable_select_expensive,
+            .quadword_atomics,
             .recipprec,
             .stfiwx,
             .two_const_nr,
@@ -1030,6 +1062,7 @@ pub const cpu = struct {
             .ppc_postra_sched,
             .ppc_prera_sched,
             .predictable_select_expensive,
+            .quadword_atomics,
             .recipprec,
             .stfiwx,
             .two_const_nr,

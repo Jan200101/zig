@@ -61,6 +61,27 @@ pub fn build(b: *Builder) !void {
     const omit_stage2 = b.option(bool, "omit-stage2", "Do not include stage2 behind a feature flag inside stage1") orelse false;
     const static_llvm = b.option(bool, "static-llvm", "Disable integration with system-installed LLVM, Clang, LLD, and libc++") orelse false;
     const enable_llvm = b.option(bool, "enable-llvm", "Build self-hosted compiler with LLVM backend enabled") orelse (is_stage1 or static_llvm);
+    const llvm_has_m68k = b.option(
+        bool,
+        "llvm-has-m68k",
+        "Whether LLVM has the experimental target m68k enabled",
+    ) orelse false;
+    const llvm_has_csky = b.option(
+        bool,
+        "llvm-has-csky",
+        "Whether LLVM has the experimental target csky enabled",
+    ) orelse false;
+    const llvm_has_ve = b.option(
+        bool,
+        "llvm-has-ve",
+        "Whether LLVM has the experimental target ve enabled",
+    ) orelse false;
+    const llvm_has_arc = b.option(
+        bool,
+        "llvm-has-arc",
+        "Whether LLVM has the experimental target arc enabled",
+    ) orelse false;
+    const enable_macos_sdk = b.option(bool, "enable-macos-sdk", "Run tests requiring presence of macOS SDK and frameworks") orelse false;
     const config_h_path_option = b.option([]const u8, "config_h", "Path to the generated config.h");
 
     if (!skip_install_lib_files) {
@@ -103,6 +124,20 @@ pub fn build(b: *Builder) !void {
     exe.setTarget(target);
     toolchain_step.dependOn(&exe.step);
     b.default_step.dependOn(&exe.step);
+
+    if (target.isWindows() and target.getAbi() == .gnu) {
+        // LTO is currently broken on mingw, this can be removed when it's fixed.
+        exe.want_lto = false;
+        test_stage2.want_lto = false;
+    }
+
+    exe.addBuildOption(u32, "mem_leak_frames", mem_leak_frames);
+    exe.addBuildOption(bool, "skip_non_native", skip_non_native);
+    exe.addBuildOption(bool, "have_llvm", enable_llvm);
+    exe.addBuildOption(bool, "llvm_has_m68k", llvm_has_m68k);
+    exe.addBuildOption(bool, "llvm_has_csky", llvm_has_csky);
+    exe.addBuildOption(bool, "llvm_has_ve", llvm_has_ve);
+    exe.addBuildOption(bool, "llvm_has_arc", llvm_has_arc);
 
     exe.addBuildOption(u32, "mem_leak_frames", mem_leak_frames);
     exe.addBuildOption(bool, "skip_non_native", skip_non_native);
@@ -237,6 +272,10 @@ pub fn build(b: *Builder) !void {
     test_stage2.addBuildOption(bool, "is_stage1", is_stage1);
     test_stage2.addBuildOption(bool, "omit_stage2", omit_stage2);
     test_stage2.addBuildOption(bool, "have_llvm", enable_llvm);
+    test_stage2.addBuildOption(bool, "llvm_has_m68k", llvm_has_m68k);
+    test_stage2.addBuildOption(bool, "llvm_has_csky", llvm_has_csky);
+    test_stage2.addBuildOption(bool, "llvm_has_ve", llvm_has_ve);
+    test_stage2.addBuildOption(bool, "llvm_has_arc", llvm_has_arc);
     test_stage2.addBuildOption(bool, "enable_qemu", is_qemu_enabled);
     test_stage2.addBuildOption(bool, "enable_wine", is_wine_enabled);
     test_stage2.addBuildOption(bool, "enable_wasmtime", is_wasmtime_enabled);
