@@ -1465,7 +1465,7 @@ fn linkWithLLD(self: *Elf, comp: *Compilation, prog_node: *std.Progress.Node) !v
             try argv.append(try std.fmt.allocPrint(arena, "stack-size={d}", .{stack_size}));
 
             if (self.base.options.build_id) {
-                try argv.append("--build-id");
+                try argv.append("--build-id=sha1");
             }
         }
 
