@@ -1547,7 +1547,7 @@ pub const LibExeObjStep = struct {
     /// As an example, the bloaty project refuses to work unless its inputs have
     /// build ids, in order to prevent accidental mismatches.
     /// The default is to not include this section because it slows down linking.
-    build_id: ?bool = null,
+    build_id: ?bool = true,
 
     /// Create a .eh_frame_hdr section and a PT_GNU_EH_FRAME segment in the ELF
     /// file.

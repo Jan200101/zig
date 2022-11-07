@@ -155,7 +155,7 @@ pub fn build(b: *Builder) !void {
     exe.stack_size = stack_size;
     exe.strip = strip;
     exe.sanitize_thread = sanitize_thread;
-    exe.build_id = b.option(bool, "build-id", "Include a build id note") orelse false;
+    exe.build_id = b.option(bool, "build-id", "Include a build id note") orelse true;
     exe.install();
     exe.setBuildMode(mode);
     exe.setTarget(target);
