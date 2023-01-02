@@ -675,7 +675,14 @@ fn addCxxKnownPath(
         }
         return error.RequiredLibraryNotFound;
     }
-    exe.addObjectFile(path_unpadded);
+
+    const resolved_path = resolved_path: {
+        var buffer: [fs.MAX_PATH_BYTES]u8 = undefined;
+        const trimmed_path = mem.trim(u8, path_padded, "\n\r");
+        break :resolved_path fs.realpath(trimmed_path, &buffer) catch trimmed_path;
+    };
+
+    exe.addObjectFile(resolved_path);
 
     // TODO a way to integrate with system c++ include files here
     // c++ -E -Wp,-v -xc++ /dev/null
