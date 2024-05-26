@@ -2037,18 +2037,20 @@ fn dependencyInner(
     pkg_deps: AvailableDeps,
     args: anytype,
 ) *Dependency {
+    const build_root_path = fs.realpathAlloc(b.allocator, build_root_string) catch unreachable;
+
     const user_input_options = userInputOptionsFromArgs(b.allocator, args);
     if (b.initialized_deps.get(.{
-        .build_root_string = build_root_string,
+        .build_root_string = build_root_path,
         .user_input_options = user_input_options,
     })) |dep|
         return dep;
 
     const build_root: std.Build.Cache.Directory = .{
-        .path = build_root_string,
-        .handle = fs.cwd().openDir(build_root_string, .{}) catch |err| {
+        .path = build_root_path,
+        .handle = fs.cwd().openDir(build_root_path, .{}) catch |err| {
             std.debug.print("unable to open '{s}': {s}\n", .{
-                build_root_string, @errorName(err),
+                build_root_path, @errorName(err),
             });
             process.exit(1);
         },
@@ -2067,7 +2069,7 @@ fn dependencyInner(
     dep.* = .{ .builder = sub_builder };
 
     b.initialized_deps.put(.{
-        .build_root_string = build_root_string,
+        .build_root_string = build_root_path,
         .user_input_options = user_input_options,
     }, dep) catch @panic("OOM");
     return dep;
