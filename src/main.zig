@@ -3936,6 +3936,15 @@ fn createModule(
 
             try create_module.lib_directories.ensureUnusedCapacity(arena, paths.lib_dirs.items.len);
             for (paths.lib_dirs.items) |path| addLibDirectoryWarn2(&create_module.lib_directories, path, true);
+
+            for (paths.lib_dirs.items) |native_lib_dir| {
+                for (0.., create_module.rpath_list.items) |i, rpath_dir| {
+                    if (std.mem.eql(u8, native_lib_dir, rpath_dir)) {
+                        _ = create_module.rpath_list.orderedRemove(i);
+                        break;
+                    }
+                }
+            }
         }
 
         if (create_module.libc_paths_file) |paths_file| {
